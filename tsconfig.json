@@ -1,0 +1,59 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable", "ES7", "ES6", "ES5"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "Node",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-native",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Emit */
+    "importsNotUsedAsValues": "remove",
+    "downlevelIteration": true,
+    "noEmitOnError": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+
+    /* Type Checking */
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+
+    /* Modules */
+    "rootDir": "./",
+    "baseUrl": "./",
+    "paths": {
+      "@constants": ["./src/constants"],
+      "@hooks": ["./src/hooks"],
+      "@api": ["./src/api"],
+      "@store": ["./src/store"],
+      "@store/*": ["./src/store/*"],
+      "@actionTypes": ["./src/store/actionTypes"],
+      "@actions": ["./src/store/actions"],
+      "@selectors": ["./src/store/selectors"],
+      "@screens": ["./src/screens"],
+      "@helpers": ["./src/helpers"],
+      "@styles": ["./src/styles"],
+      "@components": ["./src/components"],
+      "@assets/*": ["./assets/*"],
+      "@slices": ["./src/store/slices"],
+      "@types": ["./src/types"],
+    }
+  },
+  "exclude": ["node_modules", "**/node_modules/*", "android", "ios"],
+  "extends": "@tsconfig/react-native/tsconfig.json"
+}

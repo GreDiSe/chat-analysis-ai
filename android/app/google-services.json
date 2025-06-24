@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "440585427260",
+    "firebase_url": "https://loverecovery-aebe9-default-rtdb.firebaseio.com",
+    "project_id": "loverecovery-aebe9",
+    "storage_bucket": "loverecovery-aebe9.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:440585427260:android:55d3a2a9a59cd2ac7c2639",
+        "android_client_info": {
+          "package_name": "chat.analysis.ai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "440585427260-bf4cfj566jfsh08hnas36bk1j3urbhac.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "chat.analysis.ai",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "440585427260-6l9r24e4mfnno5p2ecd26lv4leksefs5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDD8UxQAqWkxUemzWs57on25CKdxP7YA80"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "440585427260-6l9r24e4mfnno5p2ecd26lv4leksefs5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

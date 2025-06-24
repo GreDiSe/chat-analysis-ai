@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1083255720908",
+    "project_id": "chat-analysis-ai---prod",
+    "storage_bucket": "chat-analysis-ai---prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1083255720908:android:fbff85c9dcae574d1a2b69",
+        "android_client_info": {
+          "package_name": "chat.analysis.ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDhlmacKtsgADqswwivfCLjrI0t-9rF7o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
