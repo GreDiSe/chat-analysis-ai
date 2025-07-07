@@ -8,6 +8,9 @@ import analytics from '@react-native-firebase/analytics';
 import { safeLogEvent } from './src/utils/analytics';
 import { RootState } from './src/store';
 import crashlytics from '@react-native-firebase/crashlytics';
+import { Settings } from 'react-native-fbsdk-next';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
+import env from './env.json';
 
 import { store, persist } from './src/store';
 import { FeaturesScreen } from './src/screens/features/FeaturesScreen';
@@ -27,11 +30,21 @@ import { showUpdatePopup, appActions } from './src/store/slices/appSlice';
 import { getAppVersion, isVersionLessThan } from './src/helpers/version';
 import { AppDispatch } from '@store';
 import { ChatTypeModal } from './src/components/modals/ChatTypeModal';
+
 import { TermsScreen } from './src/screens/terms/TermsScreen';
+import { useRevenueCat } from './src/hooks/useRevenueCat';
 
 const { ShareReceiver } = NativeModules;
 const shareEmitter = new NativeEventEmitter(ShareReceiver);
 const Stack = createStackNavigator<RootStackParamList>();
+
+try {
+  Settings.initializeSDK();
+  Settings.setAppID('1031634519139516');
+  Settings.setAutoLogAppEventsEnabled(true);
+} catch (error) {
+  console.log('Error initializing Facebook SDK', error);
+}
 
 // Chat Analysis AI – Emotion Insight
 // cd %LOCALAPPDATA%\Android\Sdk\emulator
@@ -60,7 +73,7 @@ const Navigation = () => {
   const appConfig = useSelector((state: RootState) => state.appReducer.appConfig);
   const selectedChatType = useSelector((state: RootState) => state.appReducer.selectedChatType);
   const pendingAnalysisUri = useRef<string | null>(null);
-
+  
   useEffect(() => {
     if (selectedChatType && pendingAnalysisUri.current) {
       const uri = pendingAnalysisUri.current;
@@ -186,7 +199,29 @@ const Navigation = () => {
 };
 
 const App = () => {
-  
+  useEffect(() => {
+    try {
+      if(env.NAME_ENV === 'dev') {
+        Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+      } else {
+        Purchases.setLogLevel(LOG_LEVEL.ERROR);
+      }
+
+      if (Platform.OS === 'ios') {
+        //  Purchases.configure({apiKey: "YOUR_REVENUECAT_APPLE_API_KEY"});
+      } else if (Platform.OS === 'android') {
+        Purchases.configure({apiKey: "goog_EARwjGtvjNqfJHddUFiqkzgqlLC"});
+      }
+
+    } catch (error) {
+      crashlytics().recordError(error as any);
+      safeLogEvent('revenuecat_error', {
+        error: error as any,
+      });
+      console.log('[RevenueCat ERROR]', error);
+    }
+  }, []);
+
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persist}>

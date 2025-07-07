@@ -17,12 +17,12 @@ export const createOrUpdateUser = async (userId: string, data: Record<string, an
       lastLogin: firestore.FieldValue.serverTimestamp(),
       isAnonymous: true,
       isFeatureScreenShowed: false,
-    });
+    }, { merge: true });
   } else {
-    await userRef.update({
+    await userRef.set({
       ...data,
       lastLogin: firestore.FieldValue.serverTimestamp(),
-    });
+    }, { merge: true });
   }
 };
 

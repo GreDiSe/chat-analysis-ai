@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Chat Analysis AI – Emotion Insight</string>
+    <string name="facebook_app_id">1031634519139516</string>
+    <string name="facebook_client_token">2a9205c4f870db89a31eae79887c3018</string>
 </resources>

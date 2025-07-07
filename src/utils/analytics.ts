@@ -1,5 +1,6 @@
 import analytics from '@react-native-firebase/analytics';
 import env from '../../env.json';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 
 export const safeLogEvent = async (
   eventName: string,
@@ -7,7 +8,7 @@ export const safeLogEvent = async (
 ): Promise<void> => {
   const finalParams = Object.entries(params).reduce((acc, [key, value]) => ({
     ...acc,
-    [`CUSTOM_${key}`]: value
+    [`CUSTOM_${key}`]: String(value)
   }), {
     ts: Date.now(),
   });
@@ -18,9 +19,18 @@ export const safeLogEvent = async (
     }
     
     if(env.NAME_ENV !== 'dev') {
+      console.log('PROD MODE -> Sending event:', eventName, finalParams);
       await analytics().logEvent(eventName, finalParams);
+
+      try {
+        AppEventsLogger.logEvent(eventName, params);
+      } catch (error) {
+        console.log('Error logging event to Facebook', error);
+      }
     }
   } catch (e) {
     console.warn('❌ Failed to send event:', eventName, e);
   }
+    
+  
 }; 

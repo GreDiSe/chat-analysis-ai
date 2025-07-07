@@ -3,16 +3,25 @@ import { StyleSheet, View, Text, TouchableOpacity, Dimensions } from 'react-nati
 import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import { BlurView } from '@react-native-community/blur';
+import { useDispatch } from 'react-redux';
+import { chatActions } from '../../store/slices/chatSlice';
 
 interface ShareOverlayProps {
   onShare: () => void;
   onBack: () => void;
+  statisticType: string;
 }
 
 const { width, height } = Dimensions.get('window');
 
-export const ShareOverlay: React.FC<ShareOverlayProps> = ({ onShare, onBack }) => {
+export const ShareOverlay: React.FC<ShareOverlayProps> = ({ onShare, onBack, statisticType }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  const handleShare = () => {
+    dispatch(chatActions.triggerShareFromPopup(statisticType));
+    onShare();
+  };
 
   return (
     <View style={styles.absoluteFill}>
@@ -33,7 +42,7 @@ export const ShareOverlay: React.FC<ShareOverlayProps> = ({ onShare, onBack }) =
             <TouchableOpacity style={[styles.button, styles.backButton]} onPress={onBack}>
               <Text style={styles.backButtonText}>{t('statistics.stories.shareOverlay.back')}</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.button, styles.shareButton]} onPress={onShare}>
+            <TouchableOpacity style={[styles.button, styles.shareButton]} onPress={handleShare}>
               <Text style={styles.shareButtonText}>{t('statistics.common.share')}</Text>
             </TouchableOpacity>
           </View>

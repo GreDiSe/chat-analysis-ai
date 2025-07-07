@@ -16,13 +16,18 @@ import { StatisticCard } from '../chatStats/StatisticCard';
 import { Story } from '../../types/story';
 import { StoryCard } from './StoryCard';
 import { ShareOverlay } from './ShareOverlay';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { getStoryTypesByChatType, StatisticType } from '../../utils/storyTypes';
+import { chatActions } from '../../store/slices/chatSlice';
+import { appActions } from '../../store/slices/appSlice';
 import { safeLogEvent } from '../../utils/analytics';
-import { RootState } from '../../store';
+import { RootState, AppDispatch } from '../../store';
+import { useGuideTimer } from '../../hooks/useGuideTimer';
+import { useIsFocused } from '@react-navigation/native';
+import { PaywallOverlay } from '../modals/PaywallOverlay';
 
 interface StoriesCarouselProps {
-  mode: 'story' | 'statistics';
+  mode: 'story' | 'statistics' | 'features';
   chat?: Chat;
   stories?: Story[];
   onClose?: () => void;
@@ -32,7 +37,7 @@ interface StoriesCarouselProps {
 const PROGRESS_BAR_TIME = 5000;
 const SWIPE_THRESHOLD = 20;
 
-export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
+const StoriesCarouselComponent: React.FC<StoriesCarouselProps> = ({
   mode,
   chat,
   stories: initialStories = [],
@@ -43,23 +48,46 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
   const [isPaused, setIsPaused] = useState(false);
   const isSwiping = useRef(false);
   const buttonPressedRef = useRef(false);
-  const [showShareOverlay, setShowShareOverlay] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const showShareOverlay = useSelector((state: RootState) => state.chatReducer.showShareOverlay);
   const sharedChats = useSelector((state: any) => state.chatReducer.sharedChats);
+  const hasProAccess = useSelector((state: RootState) => state.appReducer.hasProAccess);
+  const showPaywallOverlay = useSelector((state: RootState) => state.appReducer.showPaywallOverlay);
   const scrollViewRef = useRef<ScrollView>(null);
   const progressAnimation = useRef(new Animated.Value(0)).current;
   const startTouchX = useRef(0);
   const windowWidth = Dimensions.get('window').width;
   const isStatisticAvaliable = sharedChats.includes(chat?.id);
   const chatLength = useSelector((state: RootState) => state.chatReducer.chats.length);
-  
+  const isFocused = useIsFocused();
+
   const startTimeRef = useRef<number>(Date.now());
   const hasSeenShareOverlayRef = useRef<boolean>(false);
   
   const chatItems = useMemo(() => (chat ? getStoryTypesByChatType(chat) : []), [chat]);
   const stories = initialIndex > 0 ? initialStories.slice(initialIndex) : initialStories
   const items = mode === 'statistics' ? chatItems : stories;
+  const isFocusedRef = useRef(isFocused);
+
+  // Timer tracking for current story
+  const currentStory = mode === 'story' ? stories[activeIndex] : null;
+  
+  // Use the guide timer hook
+  const { timeLeft, canProceed, isTimerActive } = useGuideTimer({
+    currentStory,
+    isActive: true
+  });
 
   useEffect(() => {
+    isFocusedRef.current = isFocused;
+  }, [isFocused]);
+
+  useEffect(() => {
+    if (!isFocusedRef.current) {
+      progressAnimation.stopAnimation();
+      return;
+    }
+
     if (!isPaused) {
       startProgressAnimation();
     }
@@ -68,19 +96,29 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
     };
   }, [activeIndex, isPaused]);
 
+
+
   useEffect(() => {
     if (mode === 'statistics' && chat) {
       safeLogEvent(`story_impression`, {
         story_key: items[activeIndex],
+        active_index: activeIndex + 1,
         chat_type: chat.type,
-        chat_id: chat.id,
         existing_chats_count: chatLength,
         is_first_chat: chatLength === 0
       });
     } else if (mode === 'story') {
       safeLogEvent(`guide_impression`, {
         guide_id: stories[activeIndex]?.id,
+        active_index: activeIndex + 1,
         existing_chats_count: chatLength,
+        is_first_chat: chatLength === 0
+      });
+    } else if (mode === 'features') {
+      safeLogEvent(`features_impression`, {
+        feature_id: stories[activeIndex]?.id,
+        existing_chats_count: chatLength,
+        active_index: activeIndex + 1,
         is_first_chat: chatLength === 0
       });
     }
@@ -104,8 +142,19 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
       duration: PROGRESS_BAR_TIME,
       useNativeDriver: false,
     }).start(({ finished }) => {
-      if (finished) {
-        handleNext();
+      // if (finished && !showShareOverlay && isFocusedRef.current) {
+      //   handleNext();
+      // }
+
+      if (finished && !showPaywallOverlay) {
+        // Check if current story is a long video
+        const currentStory = mode === 'story' ? stories[activeIndex] : mode === 'features' ? stories[activeIndex] : null;
+        const isCurrentVideoLong = currentStory?.isLongVideo === true;
+        
+        // Don't auto-advance if current video is long
+        if (!isCurrentVideoLong) {
+          handleNext();
+        }
       }
     });
   };
@@ -114,15 +163,8 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
     if (activeIndex < items.length - 1) {
       const nextIndex = activeIndex + 1;
 
-      if (nextIndex >= 3 && mode === 'statistics' && !isStatisticAvaliable) {
-        setShowShareOverlay(true);
-        hasSeenShareOverlayRef.current = true;
-        safeLogEvent('setShowShareOverlay', {
-          story_key: items[activeIndex],
-          chat_type: chat?.type,
-          existing_chats_count: chatLength,
-          is_first_chat: chatLength === 0
-        });
+      if (nextIndex >= 3 && mode === 'statistics' && !hasProAccess && !showPaywallOverlay) {
+        showPaywall({ type: chat?.type === 'love' ? 'love' : 'general' });
       }
 
       setActiveIndex(nextIndex);
@@ -137,21 +179,33 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
           prev_story_key: items[activeIndex],
           chat_type: chat.type,
           existing_chats_count: chatLength,
-          is_first_chat: chatLength === 0
+          is_first_chat: chatLength === 0,
+          active_index: activeIndex + 1,
+          next_index: nextIndex + 1,
         });
       } else if (mode === 'story') {
         safeLogEvent('next_guide_story', {
           prev_story_key: stories[activeIndex].id,
           next_story_key: stories[nextIndex].id,
           existing_chats_count: chatLength,
-          is_first_chat: chatLength === 0
+          is_first_chat: chatLength === 0,
+          active_index: activeIndex + 1,
+          next_index: nextIndex + 1,
+        });
+      } else if (mode === 'features') {
+        safeLogEvent('next_features_story', {
+          prev_feature_key: stories[activeIndex].id,
+          next_feature_key: stories[nextIndex].id,
+          existing_chats_count: chatLength,
+          is_first_chat: chatLength === 0,
+          active_index: activeIndex + 1,
+          next_index: nextIndex + 1,
         });
       }
     }
   };
 
   const handlePrevious = () => {
-    setShowShareOverlay(false);
     if (activeIndex > 0) {
       const prevIndex = activeIndex - 1;
       setActiveIndex(prevIndex);
@@ -175,6 +229,13 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
           existing_chats_count: chatLength,
           is_first_chat: chatLength === 0
         });
+      } else if (mode === 'features') {
+        safeLogEvent('prev_features_story', {
+          prev_feature_key: stories[prevIndex].id,
+          next_feature_key: stories[activeIndex].id,
+          existing_chats_count: chatLength,
+          is_first_chat: chatLength === 0
+        });
       }
     }
   };
@@ -193,6 +254,11 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
 
   const handleTouchEnd = (event: GestureResponderEvent) => {
     if (buttonPressedRef.current) {
+      return;
+    }
+    
+    // Block touch actions if timer is still active
+    if (isTimerActive) {
       return;
     }
     
@@ -220,18 +286,59 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
       existing_chats_count: chatLength,
       is_first_chat: chatLength === 0
     });
-    handlePrevious();
   };
 
+  
+  const paywallOverlayonBackHandle = () => {
+    safeLogEvent('paywall_overlay_back', {
+      story_key: items[activeIndex],
+      chat_type: chat?.type,
+      existing_chats_count: chatLength,
+      is_first_chat: chatLength === 0,
+    });
+    handlePrevious();
+
+    setTimeout(() => {
+      dispatch(appActions.hidePaywallOverlay());
+    }, 10);
+  };
   
   const shareOverlayonBackHandle = () => {
     safeLogEvent('share_overlay_back', {
       story_key: items[activeIndex],
       chat_type: chat?.type,
       existing_chats_count: chatLength,
-      is_first_chat: chatLength === 0
+      is_first_chat: chatLength === 0,
     });
     handlePrevious();
+
+    setTimeout(() => {
+      dispatch(chatActions.hideShareOverlay());
+    }, 10);
+  };
+
+  const triggerShareOverlay = () => {
+    dispatch(chatActions.showShareOverlay());
+    hasSeenShareOverlayRef.current = true;
+    safeLogEvent('setShowShareOverlay', {
+      story_key: items[activeIndex],
+      chat_type: chat?.type,
+      existing_chats_count: chatLength,
+      is_first_chat: chatLength === 0,
+      active_index: activeIndex + 1,
+    });
+  };
+
+  const showPaywall = (options?: { type: 'love' | 'general' }) => {
+    const finalOptions = options?.type ? { type: options.type } : undefined;
+    dispatch(appActions.showPaywallOverlay(finalOptions));
+    safeLogEvent('show_paywall', {
+      story_key: items[activeIndex],
+      chat_type: chat?.type,
+      existing_chats_count: chatLength,
+      is_first_chat: chatLength === 0,
+      active_index: activeIndex + 1,
+    });
   };
 
   const renderProgressBars = () => (
@@ -284,6 +391,7 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
             onContinue={handleNext}
             isLastStory={index === stories.length - 1}
             buttonPressedRef={buttonPressedRef}
+            timerState={mode === 'story' && index === activeIndex ? { timeLeft, canProceed, isTimerActive } : undefined}
           />
         </LinearGradient>
       </View>
@@ -299,6 +407,7 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
       safeLogEvent('close_statistics', {
         story_key: items[activeIndex],
         chat_type: chat.type,
+        active_index: activeIndex + 1,
         chat_id: chat.id,
         existing_chats_count: chatLength,
         stories_viewed: activeIndex + 1,
@@ -314,6 +423,19 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
         existing_chats_count: chatLength,
         stories_viewed: activeIndex + 1,
         total_stories: stories.length,
+        percentage_viewed: percentageViewed,
+        active_index: activeIndex + 1,
+        time_spent_seconds: timeSpent,
+        time_spent_minutes: Math.round(timeSpent / 60 * 100) / 100,
+        has_seen_share_overlay: hasSeenShareOverlayRef.current
+      });
+    } else if (mode === 'features') {
+      safeLogEvent('close_features', {
+        feature_id: stories[activeIndex]?.id,
+        existing_chats_count: chatLength,
+        stories_viewed: activeIndex + 1,
+        total_stories: stories.length,
+        active_index: activeIndex + 1,
         percentage_viewed: percentageViewed,
         time_spent_seconds: timeSpent,
         time_spent_minutes: Math.round(timeSpent / 60 * 100) / 100,
@@ -334,6 +456,13 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
 
   return (
     <View style={styles.container}>
+      <PaywallOverlay 
+        onClose={paywallOverlayonBackHandle} 
+        chatType={chat?.type}
+        chatsLength={chatLength}
+        activeIndex={activeIndex}
+      />
+
       <View style={styles.header}>
         {renderProgressBars()}
         {onClose && (
@@ -364,6 +493,7 @@ export const StoriesCarousel: React.FC<StoriesCarouselProps> = ({
         <ShareOverlay
           onShare={shareOverlayonShareHandle}
           onBack={shareOverlayonBackHandle}
+          statisticType={items[activeIndex] as string}
         />
       )}
     </View>
@@ -436,3 +566,4 @@ const styles = StyleSheet.create({
   },
 });
  
+export const StoriesCarousel = React.memo(StoriesCarouselComponent);

@@ -73,7 +73,6 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
     padding: 40,
-    borderRadius: 20,
   },
   title: {
     fontSize: 28,

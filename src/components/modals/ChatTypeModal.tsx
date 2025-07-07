@@ -35,8 +35,8 @@ export const ChatTypeModal: React.FC = () => {
       return (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#007AFF" />
-          <Text style={styles.loadingText}>Analyzing your chat...</Text>
-          <Text style={styles.loadingSubtext}>This may take a few moments</Text>
+          <Text style={styles.loadingText}>{t('screens.chatTypeModal.analyzing')}</Text>
+          <Text style={styles.loadingSubtext}>{t('screens.chatTypeModal.analyzingSubtext')}</Text>
         </View>
       );
     }

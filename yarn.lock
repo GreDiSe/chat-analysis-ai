@@ -2784,6 +2784,11 @@
     redux-thunk "^3.1.0"
     reselect "^5.1.0"
 
+"@revenuecat/purchases-typescript-internal@14.0.2":
+  version "14.0.2"
+  resolved "https://registry.yarnpkg.com/@revenuecat/purchases-typescript-internal/-/purchases-typescript-internal-14.0.2.tgz#633e4f2b2dc544a33049566cd3e9975c9617d354"
+  integrity sha512-JmfbWqSUe5Su0z7+MKExP7LzkwslxKQ4oDaT560qX269nwBRbORVMPswKwwJ42twyH8ZKsQoudmLmgoZKoMXQg==
+
 "@sideway/address@^4.1.5":
   version "4.1.5"
   resolved "https://registry.npmjs.org/@sideway/address/-/address-4.1.5.tgz"
@@ -7723,6 +7728,11 @@ react-native-document-picker@^9.3.1:
   dependencies:
     invariant "^2.2.4"
 
+react-native-fbsdk-next@^13.4.1:
+  version "13.4.1"
+  resolved "https://registry.yarnpkg.com/react-native-fbsdk-next/-/react-native-fbsdk-next-13.4.1.tgz#e2cb0d0c40ac00abcecceb2ee24473e74c9d8e18"
+  integrity sha512-Cto+oF0FJyvxKDjKyLKI5DgnLCeeRlXvVQb8qw0XesT1Xune1ijDWAnvt9fy6wXJ4G7K510xKkcSUsbK/KyPhg==
+
 react-native-fs@^2.20.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/react-native-fs/-/react-native-fs-2.20.0.tgz#05a9362b473bfc0910772c0acbb73a78dbc810f6"
@@ -7754,6 +7764,26 @@ react-native-localize@^3.4.1:
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/react-native-localize/-/react-native-localize-3.4.1.tgz#df07c13231b4e8cc949e68513b124105f861229c"
   integrity sha512-NJqJGBUpHtD/MpLCCkrNiqNZ+xFwbHCivxaoN1Oeb8tBAiZr/IqgP3E+MgnqmmdTMOJ33llUfiW3EM6pEIb33w==
+
+react-native-orientation-locker@^1.7.0:
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/react-native-orientation-locker/-/react-native-orientation-locker-1.7.0.tgz#47ef2b9c24618e40f0a521f184b51270e576b028"
+  integrity sha512-2PhG4UyRJktb3KCTISStuu8/q+Q3q3oPesGg9DhdY0b6Cu/ZzxkCvkbJte2TPWRYkS0JpClimvqVaonulGvDrA==
+
+react-native-purchases-ui@^8.11.8:
+  version "8.11.8"
+  resolved "https://registry.yarnpkg.com/react-native-purchases-ui/-/react-native-purchases-ui-8.11.8.tgz#1c0374a43de7abaf507e77a48dbc8429fd0e15e5"
+  integrity sha512-w/Jpo/9nob/aNtP4TPogKCTZtFvnbcV9nI5AFi12jgO11V8jQ8N1GLc5APtUT43HQA3rigLl9IC6uN6QeSTk1Q==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "14.0.2"
+    react-native-purchases "8.11.8"
+
+react-native-purchases@8.11.8, react-native-purchases@^8.11.8:
+  version "8.11.8"
+  resolved "https://registry.yarnpkg.com/react-native-purchases/-/react-native-purchases-8.11.8.tgz#8980853cbc32d905d35b94f802fa3f0e6d33ea8e"
+  integrity sha512-mTWEDYnvRj3kTfUt2zriq0UxPQQZFOEyOWOkTZ2Xex+AsaSDG7RQdjAd+RwehpKJhgXAVEVgZaEiN5wbxLxJpw==
+  dependencies:
+    "@revenuecat/purchases-typescript-internal" "14.0.2"
 
 react-native-reanimated@^3.18.0:
   version "3.18.0"

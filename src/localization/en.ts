@@ -47,6 +47,11 @@ export const en = {
       },
       premium: {
         title: 'Unlimited analyses for $3.99!',
+        activated: 'Pro access activated',
+        restorePurchase: 'Restore Purchase',
+        restorePurchaseSubtitle: 'Restore your previous purchases',
+        manageSubscription: 'Manage Subscription',
+        manageSubscriptionSubtitle: 'Cancel, change or view your subscription',
       },
     },
     features: {
@@ -80,6 +85,30 @@ export const en = {
           subtitle: 'Who replies faster?',
           person1: 'Carmen',
           person2: 'Mateo'
+        },
+        relationshipInsights: {
+          title: 'Relationship Insights',
+          subtitle: 'Deep analysis of your connection patterns',
+          person1: 'Sofia',
+          person2: 'Carlos'
+        },
+        unexpectedInsights: {
+          title: 'Surprising Patterns',
+          subtitle: 'Discover unexpected aspects of your communication',
+          person1: 'Ana',
+          person2: 'Miguel'
+        },
+        funInsights: {
+          title: 'Fun & Entertainment',
+          subtitle: 'How you keep things lively and entertaining',
+          person1: 'Elena',
+          person2: 'Pablo'
+        },
+        dataSafety: {
+          title: '🔒 Your privacy is our priority',
+          subtitle: 'No worries - your chats are never stored',
+          person1: 'Protected',
+          person2: 'Stored'
         }
       }
     },
@@ -87,13 +116,25 @@ export const en = {
       title: 'How to import chat?',
       stories: {
         welcome: {
-          title: 'Let\'s analyze your chat',
-          titleExisting: 'Let\'s analyze your chat',
-          subtitle: 'We\'ll help you understand your conversation patterns and relationship dynamics',
+          title: 'Reveal your chat\'s secrets',
+          titleExisting: 'Reveal your chat\'s secrets',
+          subtitle: 'We\'ll show you who texts more, who\'s funnier, and who cares more.',
           subtitleExisting: 'Add more conversations to your analysis collection',
           buttonText: 'Import First Chat',
           buttonTextExisting: 'Import another chat',
           secondaryButtonText: 'Show My Chats',
+          disclaimer: 'Your data is anonymized, and no user-based information is stored.'
+        },
+        summary: {
+          title: 'Quick Steps Overview',
+          step1: '1. Open **WhatsApp**',
+          step2: '2. Open **the chat** you want to analyze',
+          step3: '3. Tap **⋮ (three dots)** in the top right',
+          step4: '4. Tap **More** → **Export chat**',
+          step5: '5. Choose **Without media**',
+          step6: '6. Select **Chat Analysis AI** (swipe right and tap **More** if you don’t see it)',
+          step7: '7. **Done!** The analysis will start automatically',
+          buttonText: 'Open WhatsApp',
           disclaimer: 'Your data is anonymized, and no user-based information is stored.'
         },
         step1: {
@@ -118,7 +159,7 @@ export const en = {
         },
         step5: {
           title: 'Tap on \'Chat Analysis AI\' to\ncontinue.',
-          buttonText: 'Open WhatsApp',
+          buttonText: 'Next',
           disclaimer: 'Your data is anonymized, and no user-based information is stored.'
         }
       }
@@ -141,6 +182,8 @@ export const en = {
       pleaseChoose: 'Please choose:',
       partner: 'My partner',
       friend: 'Friends',
+      analyzing: 'Analyzing your chat...',
+      analyzingSubtext: 'This may take a few moments',
     },
   },
   socialButtons: {
@@ -150,6 +193,7 @@ export const en = {
   changeLanguage: {
     english: 'English',
     spanish: 'Spanish',
+    turkish: 'Turkish',
   },
   statistics: {
     common: {
@@ -388,5 +432,25 @@ export const en = {
     title: 'Limit Reached',
     message: 'You have reached the limit, please try again later',
     ok: 'OK'
+  },
+  paywall: {
+    defaultTitle: 'How Many Days Have You Talked?',
+    defaultButtonText: 'Tap to reveal',
+    love: {
+      titleLines: {
+        line1: '❤️ Who cares more?',
+        line2: "💔 Who's pulling away?",
+        line3: "😈 Who's manipulative?",
+        line4: '🧠 And many more...'
+      }
+    },
+    general: {
+      titleLines: {
+        line1: '📱 Who spams — and who ghosts?',
+        line2: '😎 Fast replies or silent treatment?',
+        line3: '😂 What emojis define your vibe?',
+        line4: '🧠 And many more...'
+      }
+    }
   }
 };

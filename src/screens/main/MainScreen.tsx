@@ -182,11 +182,11 @@ export const MainScreen: React.FC = () => {
             <Text style={styles.settingsIcon}>⚙️</Text>
           </TouchableOpacity>
         </View>
-
+{/* 
         <View style={styles.iconRow}>
           {renderTopIcon('love')}
           {renderTopIcon('friends')}
-        </View>
+        </View> */}
 
         <ScrollView style={styles.list}>
           {chatListItems.map((item: ChatListItem) => (

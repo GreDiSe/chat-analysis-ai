@@ -65,4 +65,6 @@ export interface ChatState {
   isShareFailed: boolean;
   error: string | null;
   sharedChats: string[]; // IDs of chats where user has shared
+  sharedStatisticTypeFromSharePopup: string | null;
+  showShareOverlay: boolean;
 } 

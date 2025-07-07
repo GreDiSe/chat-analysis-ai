@@ -1,10 +1,11 @@
-import { requestSetLanguage } from '@actions';
 import { LANGUAGES, LanguageType } from '@constants';
-import { getLanguage } from '../../../store/slices/appSlice';
+import { getLanguage, setLanguage } from '../../../store/slices/appSlice';
 import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '@store';
+import { createOrUpdateUser, getCurrentUser } from '../../../firebase/auth';
+import i18n from '../../../localization';
 
 interface IChangeLanguageContainer {
   style?: ViewStyle;
@@ -17,9 +18,25 @@ export const ChangeLanguageContainer = ({
   const dispatch = useDispatch<AppDispatch>();
   const language = useSelector(getLanguage);
 
-  const handleSelectLanguage = (selectedLang: LanguageType) => {
+  const handleSelectLanguage = async (selectedLang: LanguageType) => {
     if (selectedLang !== language) {
-    dispatch(requestSetLanguage());
+      try {
+        // Update Redux state
+        dispatch(setLanguage(selectedLang));
+        
+        // Update i18n
+        await i18n.changeLanguage(selectedLang);
+        
+        // Update Firebase
+        const currentUser = getCurrentUser();
+        if (currentUser) {
+          await createOrUpdateUser(currentUser.uid, { language: selectedLang });
+        }
+        
+        console.log(`Language changed to: ${selectedLang}`);
+      } catch (error) {
+        console.error('Error changing language:', error);
+      }
     }
   };
 
@@ -56,6 +73,23 @@ export const ChangeLanguageContainer = ({
           { color: language === LANGUAGES.es ? '#fff' : '#000' }
         ]}>
           {t('changeLanguage.spanish')}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[
+          styles.button,
+          {
+            backgroundColor: language === LANGUAGES.tr ? '#000' : 'transparent',
+          },
+        ]}
+        onPress={() => handleSelectLanguage(LANGUAGES.tr)}
+      >
+        <Text style={[
+          styles.buttonText,
+          { color: language === LANGUAGES.tr ? '#fff' : '#000' }
+        ]}>
+          {t('changeLanguage.turkish')}
         </Text>
       </TouchableOpacity>
     </View>

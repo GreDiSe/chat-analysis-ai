@@ -47,6 +47,11 @@ export const es = {
       },
       premium: {
         title: 'Análisis ilimitados por $3.99!',
+        activated: 'Acceso Pro activado',
+        restorePurchase: 'Restaurar Compra',
+        restorePurchaseSubtitle: 'Restaura tus compras anteriores',
+        manageSubscription: 'Gestionar Suscripción',
+        manageSubscriptionSubtitle: 'Cancelar, cambiar o ver tu suscripción',
       },
     },
     features: {
@@ -80,6 +85,30 @@ export const es = {
           subtitle: '¿Quién responde más rápido?',
           person1: 'Carmen',
           person2: 'Mateo'
+        },
+        relationshipInsights: {
+          title: 'Perspectivas de la Relación',
+          subtitle: 'Análisis profundo de tus patrones de conexión',
+          person1: 'Sofía',
+          person2: 'Carlos'
+        },
+        unexpectedInsights: {
+          title: 'Patrones Sorprendentes',
+          subtitle: 'Descubre aspectos inesperados de tu comunicación',
+          person1: 'Ana',
+          person2: 'Miguel'
+        },
+        funInsights: {
+          title: 'Diversión y Entretenimiento',
+          subtitle: 'Cómo mantienes las cosas divertidas y entretenidas',
+          person1: 'Elena',
+          person2: 'Pablo'
+        },
+        dataSafety: {
+          title: '🔒 Tu privacidad es nuestra prioridad',
+          subtitle: 'No te preocupes - tus chats nunca se almacenan',
+          person1: 'Protegido',
+          person2: 'Almacenado'
         }
       }
     },
@@ -87,13 +116,25 @@ export const es = {
       title: '¿Cómo importar el chat?',
       stories: {
         welcome: {
-          title: 'Analicemos tu chat',
-          titleExisting: 'Analicemos tu chat',
-          subtitle: 'Te ayudaremos a entender tus patrones de conversación y dinámicas de relación',
+          title: 'Revela los secretos de tu chat',
+          titleExisting: 'Revela los secretos de tu chat',
+          subtitle: 'Te mostraremos quién manda más mensajes, quién es más divertido y quién se preocupa más.',
           subtitleExisting: 'Agrega más conversaciones a tu colección de análisis',
           buttonText: 'Importar primer chat',
           buttonTextExisting: 'Importar otro chat',
           secondaryButtonText: 'Mostrar Mis Chats',
+          disclaimer: 'Tus datos están anonimizados y no se almacena información basada en el usuario.'
+        },
+        summary: {
+          title: 'Resumen de Pasos Rápidos',
+          step1: '1. Abre **WhatsApp**',
+          step2: '2. Abre **el chat** que quieres analizar',
+          step3: '3. Toca **⋮ (tres puntos)** en la esquina superior derecha',
+          step4: '4. Pulsa **Más** → **Exportar chat**',
+          step5: '5. Elige **Sin archivos**',
+          step6: '6. Selecciona **Chat Analysis AI** (desliza a la derecha y pulsa **Más** si no lo ves)',
+          step7: '7. **¡Listo!** El análisis empezará automáticamente',
+          buttonText: 'Abre WhatsApp',
           disclaimer: 'Tus datos están anonimizados y no se almacena información basada en el usuario.'
         },
         step1: {
@@ -118,7 +159,7 @@ export const es = {
         },
         step5: {
           title: 'Toca en "Chat Analysis AI" para continuar.',
-          buttonText: 'Abrir WhatsApp',
+          buttonText: 'Siguiente',
           disclaimer: 'Tus datos son anónimos y no se almacena información basada en el usuario.'
         }
       }
@@ -141,6 +182,8 @@ export const es = {
       pleaseChoose: 'Elige una opción:',
       partner: 'Mi pareja',
       friend: 'Amigos',
+      analyzing: 'Analizando tu chat...',
+      analyzingSubtext: 'Esto puede tardar unos momentos',
     },
   },
   socialButtons: {
@@ -150,6 +193,7 @@ export const es = {
   changeLanguage: {
     english: 'Inglés',
     spanish: 'Español',
+    turkish: 'Turco',
   },
   statistics: {
     common: {
@@ -388,5 +432,25 @@ export const es = {
     title: 'Límite alcanzado',
     message: 'Has alcanzado el límite, por favor intenta más tarde',
     ok: 'OK'
+  },
+  paywall: {
+    defaultTitle: '¿Cuántos Días Han Hablado?',
+    defaultButtonText: 'Toca para revelar',
+    love: {
+      titleLines: {
+        line1: '❤️ ¿A quién le importa más?',
+        line2: '💔 ¿Quién se está alejando?',
+        line3: '😈 ¿Quién es manipulador?',
+        line4: '🧠 Y mucho más...'
+      }
+    },
+    general: {
+      titleLines: {
+        line1: '📱 ¿Quién spamea — y quién fantasmea?',
+        line2: '😎 ¿Respuestas rápidas o ley del hielo?',
+        line3: '😂 ¿Qué emojis definen tu vibra?',
+        line4: '🧠 Y mucho más...'
+      }
+    }
   }
 }; 

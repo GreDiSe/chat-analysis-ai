@@ -1,6 +1,6 @@
 {
   "name": "chat-analysis-ai",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "_android": "react-native run-android",
@@ -38,10 +38,14 @@
     "react-native": "0.77.0",
     "react-native-blob-util": "^0.22.2",
     "react-native-document-picker": "^9.3.1",
+    "react-native-fbsdk-next": "^13.4.1",
     "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.23.1",
     "react-native-linear-gradient": "^2.8.3",
     "react-native-localize": "^3.4.1",
+    "react-native-orientation-locker": "^1.7.0",
+    "react-native-purchases": "^8.11.8",
+    "react-native-purchases-ui": "^8.11.8",
     "react-native-reanimated": "^3.18.0",
     "react-native-restart": "^0.0.27",
     "react-native-safe-area-context": "^5.2.0",

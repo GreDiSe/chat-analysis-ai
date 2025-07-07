@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Chat, ChatState, LoveChatAnalysis, GeneralChatAnalysis, ChatType } from '../../types/chat';
-import { mockData } from '../../data/mockStoryData';
 import { RootState } from '../index';
 import { ThunkAction } from 'redux-thunk';
 import { createOrUpdateUser } from '../../firebase/auth';
@@ -14,6 +13,8 @@ const initialState: ChatState = {
   error: null,
   sharedChats: [],
   isShareFailed: false,
+  sharedStatisticTypeFromSharePopup: null,
+  showShareOverlay: false,
 };
 
 const chatSlice = createSlice({
@@ -43,6 +44,18 @@ const chatSlice = createSlice({
     addAnalysisResultLocal: (state, action: PayloadAction<Chat>) => {
       state.chats.unshift(action.payload); 
     },
+    setSharedStatisticTypeFromSharePopup: (state, action: PayloadAction<string | null>) => {
+      state.sharedStatisticTypeFromSharePopup = action.payload;
+    },
+    triggerShareFromPopup: (state, action: PayloadAction<string>) => {
+      state.sharedStatisticTypeFromSharePopup = action.payload;
+    },
+    showShareOverlay: (state) => {
+      state.showShareOverlay = true;
+    },
+    hideShareOverlay: (state) => {
+      state.showShareOverlay = false;
+    },
   },
 });
 
@@ -54,7 +67,7 @@ export const syncSharedChatsToFirestore = () : ThunkAction<void, RootState, unde
   try {
     await createOrUpdateUser(userId, { sharedChats });
   } catch (e) {
-    console.warn('Failed to sync sharedChats to Firestore', e);
+    console.error('Failed to sync sharedChats to Firestore', e);
   }
 };
 
@@ -71,7 +84,7 @@ export const setChats = (chats: Chat[]): ThunkAction<void, RootState, undefined,
   try {
     await createOrUpdateUser(userId, { chats });
   } catch (e) {
-    console.warn('Failed to sync chats to Firestore', e);
+    console.error('Failed to sync chats to Firestore', e);
   }
 };
 
@@ -85,7 +98,7 @@ export const saveAnalysisResult = (
   const userId = state.appReducer.userId;
   
   if (!userId) {
-    console.warn('No user ID available for saving analysis result');
+    console.error('No user ID available for saving analysis result');
     return null;
   }
 

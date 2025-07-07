@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     paddingHorizontal: 40,
-    borderRadius: 20,
   },
   title: {
     fontSize: 28,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,16 +9,16 @@ import {
   Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
-import { AppDispatch } from '@store';
+import { useSelector, useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { appSlice } from '../../store/slices/appSlice';
 import { ChangeLanguageContainer } from '../../components/containers/changeLanguage/ChangeLanguageContainer';
 import { NavigationProp } from '../../types/navigation';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { safeLogEvent } from '../../utils/analytics';
 import { createOrUpdateUser } from '../../firebase/auth';
-import { RootState } from '../../store';
+import { RootState, AppDispatch } from '../../store';
+import { useRevenueCat } from '../../hooks/useRevenueCat';
+import { appActions } from '../../store/slices/appSlice';
 
 interface SettingsItem {
   id: string;
@@ -37,9 +37,15 @@ interface SettingsSection {
 export const SettingsScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
   const dispatch = useDispatch<AppDispatch>();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const SUPPORT_EMAIL = 'kykysua1999@gmail.com';
   const userId = useSelector((state: RootState) => state.appReducer.userId);
+  const hasProAccess = useSelector((state: RootState) => state.appReducer.hasProAccess);
+  const { showPaywall, restorePurchases } = useRevenueCat();
+
+  // 🔓 HACK: Privacy policy click counter
+  const [privacyClickCount, setPrivacyClickCount] = useState(0);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleEraseData = () => {
     Alert.alert(
@@ -68,24 +74,38 @@ export const SettingsScreen: React.FC = () => {
     );
   };
 
+  const generalItems = [
+    {
+      id: 'language',
+      icon: '🌐',
+      title: t('screens.settings.items.language.title'),
+      subtitle: t('screens.settings.items.language.subtitle'),
+      component: <ChangeLanguageContainer />,
+    },
+    {
+      id: 'restorePurchase',
+      icon: '🔄',
+      title: t('screens.settings.premium.restorePurchase'),
+      subtitle: t('screens.settings.premium.restorePurchaseSubtitle'),
+    },
+    ...(hasProAccess ? [{
+      id: 'manageSubscription',
+      icon: '⚙️',
+      title: t('screens.settings.premium.manageSubscription'),
+      subtitle: t('screens.settings.premium.manageSubscriptionSubtitle'),
+    }] : []),
+    {
+      id: 'support',
+      icon: '📝',
+      title: t('screens.settings.items.support.title'),
+      subtitle: t('screens.settings.items.support.subtitle'),
+    },
+  ];
+
   const settingsSections: SettingsSection[] = [
     {
       title: t('screens.settings.sections.general'),
-      items: [
-        {
-          id: 'language',
-          icon: '🌐',
-          title: t('screens.settings.items.language.title'),
-          subtitle: t('screens.settings.items.language.subtitle'),
-          component: <ChangeLanguageContainer />,
-        },
-        {
-          id: 'support',
-          icon: '📝',
-          title: t('screens.settings.items.support.title'),
-          subtitle: t('screens.settings.items.support.subtitle'),
-        },
-      ],
+      items: generalItems,
     },
     {
       title: t('screens.settings.sections.about'),
@@ -127,25 +147,99 @@ export const SettingsScreen: React.FC = () => {
     navigation.goBack();
   };
 
+  const handleRestorePurchases = async () => {
+    safeLogEvent('restore_purchases_clicked');
+    const result = await restorePurchases();
+    
+    if (result.success) {
+      Alert.alert('Success', result.message);
+    } else {
+      Alert.alert(
+        'No Purchases Found', 
+        `${result.message || 'No active purchases found to restore'}\n\nIf it does not work, please contact our support team in settings screen.`
+      );
+    }
+  };
+
+  const handleManageSubscription = () => {
+    safeLogEvent('manage_subscription_clicked');
+    
+    if (Platform.OS === 'android') {
+      // Google Play Store subscription management URL
+      const googlePlayUrl = 'https://play.google.com/store/account/subscriptions';
+      Linking.openURL(googlePlayUrl).catch(err => {
+        console.error('Error opening Google Play subscriptions:', err);
+        Alert.alert('Error', 'Could not open subscription management page');
+      });
+    } else if (Platform.OS === 'ios') {
+      // iOS App Store subscription management
+      const appStoreUrl = 'https://apps.apple.com/account/subscriptions';
+      Linking.openURL(appStoreUrl).catch(err => {
+        console.error('Error opening App Store subscriptions:', err);
+        Alert.alert('Error', 'Could not open subscription management page');
+      });
+    }
+  };
+
   const handleItemPress = (id: string) => {
     // Handle item press based on id
     console.log('Pressed item:', id);
     
     switch (id) {
       case 'privacy':
+        // 🔓 HACK: If language is English, track clicks for pro access
+        if (i18n.language === 'en') {
+          // Clear any existing timeout
+          if (clickTimeoutRef.current) {
+            clearTimeout(clickTimeoutRef.current);
+          }
+          
+          const newClickCount = privacyClickCount + 1;
+          setPrivacyClickCount(newClickCount);
+          
+          console.log(`🔓 Privacy click ${newClickCount}/3`);
+          
+          if (newClickCount >= 3) {
+            // Trigger pro access hack
+            dispatch(appActions.setProAccess(true));
+            safeLogEvent('pro_access_hack_triggered', {
+              language: i18n.language,
+              trigger: 'privacy_policy_triple_click',
+              clickCount: newClickCount
+            });
+            
+            // Reset counter
+            setPrivacyClickCount(0);
+            console.log('🔓 HACK: Pro access enabled locally after 3 clicks!');
+          } else {
+            // Set timeout to reset counter after 3 seconds
+            clickTimeoutRef.current = setTimeout(() => {
+              setPrivacyClickCount(0);
+              console.log('🔓 Privacy click counter reset');
+            }, 30000);
+          }
+        }
         navigation.navigate('Privacy');
         break;
       case 'terms':
         navigation.navigate('Terms');
         break;
       case 'contact':
-        Linking.openURL(`mailto:${SUPPORT_EMAIL}`);
+        const contactEmailBody = `Hi, I am a user "${userId || 'unknown'}. Please help me with the following issue: `;
+        Linking.openURL(`mailto:${SUPPORT_EMAIL}?body=${encodeURIComponent(contactEmailBody)}`);
         break;
       case 'erase':
         handleEraseData();
         break;
       case 'support':
-        Linking.openURL(`mailto:${SUPPORT_EMAIL}`);
+        const supportEmailBody = `Hi, I am a user "${userId || 'unknown'}. Please help me with the following issue: `;
+        Linking.openURL(`mailto:${SUPPORT_EMAIL}?body=${encodeURIComponent(supportEmailBody)}`);
+        break;
+      case 'restorePurchase':
+        handleRestorePurchases();
+        break;
+      case 'manageSubscription':
+        handleManageSubscription();
         break;
       default:
         console.log('Unknown item:', id);
@@ -162,21 +256,32 @@ export const SettingsScreen: React.FC = () => {
       </View>
 
       <ScrollView style={styles.content}>
-        <TouchableOpacity 
-          style={styles.premiumButton}
-          onPress={() => {  
-            safeLogEvent('premium_pop_clicked');
-            Alert.alert("Coming Soon", "This feature is coming soon!");
-          }}
-        >
-          <View style={styles.premiumContent}>
-            <Text style={styles.crownIcon}>👑</Text>
-            <Text style={styles.premiumText}>
-              {t('screens.settings.premium.title')}
-            </Text>
+        {hasProAccess ? (
+          <View style={styles.proActivatedContainer}>
+            <View style={styles.premiumContent}>
+              <Text style={styles.crownIcon}>👑</Text>
+              <Text style={styles.proActivatedText}>
+                {t('screens.settings.premium.activated')}
+              </Text>
+            </View>
           </View>
-          <Text style={styles.chevron}>›</Text>
-        </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={styles.premiumButton}
+            onPress={() => {  
+              safeLogEvent('premium_pop_clicked');
+              showPaywall();
+            }}
+          >
+            <View style={styles.premiumContent}>
+              <Text style={styles.crownIcon}>👑</Text>
+              <Text style={styles.premiumText}>
+                {t('screens.settings.premium.title')}
+              </Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </TouchableOpacity>
+        )}
 
         {settingsSections.map((section, sectionIndex) => (
           <View 
@@ -331,4 +436,17 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     backgroundColor: '#fff',
   },
+  proActivatedContainer: {
+    backgroundColor: '#2E7D32',
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    borderRadius: 12,
+  },
+  proActivatedText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
 }); 

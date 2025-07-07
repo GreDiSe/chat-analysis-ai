@@ -91,8 +91,6 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
     padding: 20,
-    paddingHorizontal: 30,
-    borderRadius: 20,
   },
   title: {
     fontSize: 28,
@@ -184,8 +182,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   funnyImage: {
-    width: 250,
-    height: 250,
+    width: 220,
+    height: 220,
     borderRadius: 20,
   },
 }); 

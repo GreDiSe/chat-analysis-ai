@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, SafeAreaView } from 'react-native';
 import { useRoute, RouteProp, useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../store';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState, AppDispatch } from '../../store';
 import { StoriesCarousel } from '../../components/stories/StoriesCarousel';
 import { NavigationProp } from '../../../src/types/navigation';
+import { chatActions } from '../../store/slices/chatSlice';
 
 type StatisticsRouteParams = {
   chatId: string;
@@ -18,6 +19,7 @@ type StatisticsScreenRouteProp = RouteProp<
 export const StatisticsScreen: React.FC = () => {
   const route = useRoute<StatisticsScreenRouteProp>();
   const navigation = useNavigation<NavigationProp>();
+  const dispatch = useDispatch<AppDispatch>();
   const { chatId } = route.params;
 
   const chat = useSelector((state: RootState) => state.chatReducer.chats.find(c => c.id === chatId)
@@ -26,6 +28,12 @@ export const StatisticsScreen: React.FC = () => {
   const handleClose = () => {
     navigation.navigate('Main');
   };
+
+  useEffect(() => {
+    if (chat) {
+      dispatch(chatActions.hideShareOverlay());
+    }
+  }, [chat, dispatch]);
 
   if (!chat) {
     return null; // Or render an error state

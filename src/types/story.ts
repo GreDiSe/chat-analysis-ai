@@ -16,25 +16,20 @@ export interface BaseStory<T = TranslationKeysType | string> {
   isWelcome?: boolean;
   video?: any;
   image?: number;
+  withTimer?: number; // timer in seconds
+  imageWidth?: number;
+  imageHeight?: number;
+  hasTitle?: boolean;
+  summaryOverview?: T[];
+  isLongVideo?: boolean; // for displaying videos in larger size
 }
 
 export interface FeatureStory<T = TranslationKeysType | string> extends BaseStory<T> {
-  subtitle: T;  
-  data: {
-    person1: {
-      name: T;
-      percentage: number;
-    };
-    person2: {
-      name: T;
-      percentage: number;
-    };
-  };
+  subtitle: T;
 }
 
 export interface GuideStory<T = TranslationKeysType | string> extends BaseStory<T> {
   subtitle?: T;
-  data?: never;
   isWelcome?: boolean;
 }
 

@@ -50,16 +50,16 @@ export type StatisticType =
   | 'chat-summary';
 
 const loveStatisticsTypes: StatisticType[] = [
-  'days-talked',
   'conversation-starter',
+  'effort',
   'response-time',
+  'dominant-person',
+  'days-talked',
   'words-per-message',
   'top-topics',
   'manipulation',
-  'dominant-person',
   'interest-level',
   'desire-level',
-  'effort',
   'apologies',
   'i-love-you',
   'first-love-sentence',
@@ -72,16 +72,16 @@ const loveStatisticsTypes: StatisticType[] = [
 ];
 
 const generalStatisticsTypes: StatisticType[] = [
+  'fast-replier',
+  'streak-days',
+  'chat-summary',
+  'ghost-magnet',
   'message-count',
   'emoji-usage',
   'most-texted-phrase',
   'most-used-censored-word',
-  'ghost-magnet',
   'emoji-usage-by-person',
-  'peak-hours',
-  'streak-days',
-  'fast-replier',
-  'chat-summary'
+  'peak-hours'
 ];
 
 export const getStoryTypesByChatType = (chat: Chat): StatisticType[] => {
@@ -165,6 +165,6 @@ export const getStoryTypesByChatType = (chat: Chat): StatisticType[] => {
     });
   }
   
-  // Return shuffled array of filtered story types
-  return shuffleArray(filteredTypes);
+  // Return filtered story types in their original order
+  return filteredTypes;
 }; 

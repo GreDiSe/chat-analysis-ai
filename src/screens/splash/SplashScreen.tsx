@@ -1,6 +1,6 @@
 import { ImageBackgroundContainer, Logo } from '@components';
 import { useEffect } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParamList } from '../../types/navigation';
@@ -9,15 +9,18 @@ import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store';
 import { requestAppInit } from '@actions';
 import auth from '@react-native-firebase/auth';
+import crashlytics from '@react-native-firebase/crashlytics';
 import { createOrUpdateUser, getUserData, signInAnonymously } from '../../firebase/auth';
-import { setLanguage, fetchAppConfigThunk, initializeFromUserData } from '../../store/slices/appSlice';
+import { setLanguage, fetchAppConfigThunk, initializeFromUserData, appActions } from '../../store/slices/appSlice';
 import i18n from '../../localization';
-import { LANGUAGES } from '@constants';
+import { getDeviceLanguage } from '../../helpers/deviceLanguage';
+import { useRevenueCat } from '../../hooks/useRevenueCat';
 
 type Props = StackScreenProps<RootStackParamList, 'Splash'>;
 
 export const SplashScreen = ({ navigation }: Props) => {
   const dispatch = useDispatch<AppDispatch>();
+  const { checkProAccess } = useRevenueCat();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -34,30 +37,45 @@ export const SplashScreen = ({ navigation }: Props) => {
         let currentUser = auth().currentUser;
         if (!currentUser) {
           currentUser = await signInAnonymously();
-          await createOrUpdateUser(currentUser.uid, {});
         }
 
-        // Get user data and set language
+        // Get device language
+        const deviceLanguage = getDeviceLanguage();
+        
+        // Get user data first
         const userData = await getUserData(currentUser.uid);
         console.log("userData", userData);
+        
+        // Determine which language to use
+        let languageToUse = deviceLanguage;
         if (userData?.language) {
-          dispatch(setLanguage(userData.language));
-          i18n.changeLanguage(userData.language);
-        } else {
-          // Set default language if not set
-          dispatch(setLanguage(LANGUAGES.en));
-          i18n.changeLanguage(LANGUAGES.en);
+          languageToUse = userData.language;
+          // languageToUse = 'tr';
         }
         
-        // Initialize store with user data
+        dispatch(setLanguage(languageToUse));
+        i18n.changeLanguage(languageToUse);
+        
+        await createOrUpdateUser(currentUser.uid, {
+          language: languageToUse
+        });
+        
         if (userData) {
           dispatch(initializeFromUserData(userData));
+          
+          // Set pro access status from Firestore
+          if (userData.hasProAccess) {
+            dispatch(appActions.setProAccess(true));
+          }
         }
+        
+        // Check pro access status from RevenueCat
+        await checkProAccess();
         
         dispatch(requestAppInit({ hasUser: true }));
         dispatch(fetchAppConfigThunk());
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 1));
         
         // Navigate based on whether Features screen was shown before
         if (userData?.isFeatureScreenShowed) {
@@ -66,17 +84,17 @@ export const SplashScreen = ({ navigation }: Props) => {
           // navigation.replace('Main');
         } else {
           navigation.replace('Guide');
+          // navigation.replace('Features');
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Auth Error:', error);
-        // Still navigate to Features after delay, even if auth fails
-        await new Promise(resolve => setTimeout(resolve, 500));
-        navigation.replace('Features');
+        crashlytics().recordError(error);
+        Alert.alert('Error', error.message);
       }
     };
 
     initializeApp();
-  }, [dispatch, navigation]);
+  }, [dispatch, navigation, checkProAccess]);
 
   return (
     <ImageBackgroundContainer>

@@ -26,7 +26,7 @@ export const UserInterviewPopup: React.FC = () => {
     const checkIsShowen = async () => {
       if (!userId) return;
       const userData = await getUserData(userId);
-      setIsShowen(userData?.userInterviewPopup?.isShowen || false);
+      setIsShowen(userData?.userInterviewPopup?.isShown || false);
     };
     checkIsShowen();
   }, [userId]);

@@ -1,12 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import ViewShot from 'react-native-view-shot';
 import { shareStory } from '../../helpers/shareStory';
 import { useTranslation } from 'react-i18next';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { chatActions } from '../../store/slices/chatSlice';
 import { StatisticType } from '../../utils/storyTypes';
-import { AppDispatch } from '@store';
+import { AppDispatch, RootState } from '@store';
 import { Chat } from '../../types/chat';
 
 interface ViewShotContainerProps {
@@ -32,6 +32,14 @@ export const ViewShotContainer: React.FC<ViewShotContainerProps> = ({
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const [isSharing, setIsSharing] = useState(false);
+  const sharedStatisticTypeFromSharePopup = useSelector((state: RootState) => state.chatReducer.sharedStatisticTypeFromSharePopup);
+
+  useEffect(() => {
+    if (sharedStatisticTypeFromSharePopup && statisticType === sharedStatisticTypeFromSharePopup) {
+      handleShare();
+      dispatch(chatActions.setSharedStatisticTypeFromSharePopup(null));
+    }
+  }, [sharedStatisticTypeFromSharePopup, statisticType]);
 
   const handleShare = async () => {
     handleShareCallback();
@@ -47,6 +55,7 @@ export const ViewShotContainer: React.FC<ViewShotContainerProps> = ({
 
       if (result?.success) {
         dispatch(chatActions.addSharedChat(chat.id));
+        dispatch(chatActions.hideShareOverlay());
       } else {
         dispatch(chatActions.setIsShareFailed(true));
       }
@@ -136,7 +145,7 @@ const styles = StyleSheet.create({
     marginTop: 'auto',
   },
   shareButtonText: {
-    color: '#2E7D32',
+    color: 'black',
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',

@@ -3,7 +3,7 @@ import { Chat } from '../types/chat';
 // Mock data with the new structure
 export const mockData: Chat[] = [
   {
-    id: '1hello',
+    id: '1',
     type: 'love',
     title: 'Dmytro & Petti',
     participants: ['Dmytro', 'Petti'],
@@ -62,7 +62,7 @@ export const mockData: Chat[] = [
     created_at: new Date()
   },
   {
-    id: '111',
+    id: '2',
     type: 'general',
     title: 'Дмитро & Маман',
     participants: ['Дмитро', 'Маман'],
@@ -108,7 +108,7 @@ export const mockData: Chat[] = [
     created_at: new Date()
   },
   {
-    id: '2',
+    id: '3',
     type: 'love',
     title: 'Sarah & Mike',
     participants: ['Sarah', 'Mike'],
@@ -167,7 +167,7 @@ export const mockData: Chat[] = [
     created_at: new Date()
   },
   {
-    id: '3',
+    id: '4',
     type: 'love',
     title: 'Emma & James',
     participants: ['Emma', 'James'],
@@ -192,7 +192,7 @@ export const mockData: Chat[] = [
       dominant_person: 'Emma',
       interest_level: {
         Emma: 0.7,
-        James: 0.6
+        James: 0.2
       },
       mutual_desire_score: {
         Emma: 0.75,
@@ -221,12 +221,12 @@ export const mockData: Chat[] = [
         { emoji: "😊", count: 15 }, 
         { emoji: "😘", count: 10 }
       ],
-      relationship_direction: 'Growing connection with some communication challenges to work through.'
+      relationship_direction: 'Aquí hay amor, pero alguien se está guardando algo — y el chat lo sabe!'
     },
     created_at: new Date()
   },
   {
-    id: '4',
+    id: '5',
     type: 'general',
     title: 'John & Lisa & Mark & Anna',
     participants: ['John', 'Lisa', 'Mark', 'Anna'],
@@ -235,10 +235,10 @@ export const mockData: Chat[] = [
       top_3_topics: ["project updates", "meeting schedules", "team events"],
       funniest_message: ["Mark's coffee machine impression during the meeting 😂"],
       message_count: {
-        John: 245,
+        John: 813,
         Lisa: 189,
         Mark: 156,
-        Anna: 210
+        Anna: 7
       },
       emoji_usage: {
         John: "👍",
@@ -247,10 +247,10 @@ export const mockData: Chat[] = [
         Anna: "✨"
       },
       most_used_phrase: {
-        John: "let's schedule",
-        Lisa: "great work",
-        Mark: "anyone free",
-        Anna: "I'll update"
+        John: "Ya cállate, porfa, con amor",
+        Lisa: "Te lo juro por Snoopy",
+        Mark: "No entendí, pero te apoyo",
+        Anna: "Estoy, pero no estoy"
       },
       ghost_magnet: "Mark",
       most_used_censored_word: {
@@ -282,7 +282,7 @@ export const mockData: Chat[] = [
     created_at: new Date()
   },
   {
-    id: '5',
+    id: '6',
     type: 'general',
     title: 'Rachel & Tom & Sophie & David & Emma',
     participants: ['Rachel', 'Tom', 'Sophie', 'David', 'Emma'],
@@ -344,7 +344,7 @@ export const mockData: Chat[] = [
   },
   // New minimal love chat
   {
-    id: '6',
+    id: '7',
     type: 'love',
     title: 'Alex & Sam',
     participants: ['Alex', 'Sam'],
@@ -387,7 +387,7 @@ export const mockData: Chat[] = [
   },
   // New minimal general chat
   {
-    id: '7',
+    id: '8',
     type: 'general',
     title: 'Max & Lily & Chris',
     participants: ['Max', 'Lily', 'Chris'],
