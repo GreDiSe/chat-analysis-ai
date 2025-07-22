@@ -4,6 +4,7 @@ import { RootState } from '../index';
 import { ThunkAction } from 'redux-thunk';
 import { createOrUpdateUser } from '../../firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { mockData } from '../../data/mockStoryData';
 
 const initialState: ChatState = {
   // chats: mockData,

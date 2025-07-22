@@ -1,4 +1,5 @@
 import { getLocales } from 'react-native-localize';
+import { safeLogEvent } from '../../src/utils/analytics';
 
 /**
  * Gets the device's primary language code
@@ -10,9 +11,10 @@ export const getDeviceLanguage = (): string => {
     if (locales && locales.length > 0) {
       const primaryLocale = locales[0];
       const languageCode = primaryLocale.languageCode.toLowerCase();
+      safeLogEvent('original_language', { language: languageCode });
       
       // List of supported languages in the app
-      const supportedLanguages = ['en', 'es']; // Add more as needed
+      const supportedLanguages = ['en', 'es', 'tr']; // Add more as needed
       
       // Return the language if supported, otherwise fallback to 'en'
       return supportedLanguages.includes(languageCode) ? languageCode : 'en';

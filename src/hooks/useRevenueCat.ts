@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 import Purchases from 'react-native-purchases';
+import { AppEventsLogger } from 'react-native-fbsdk-next';
 import { AppDispatch, RootState } from '../store';
 import { appActions } from '../store/slices/appSlice';
 import { safeLogEvent } from '../utils/analytics';
@@ -25,13 +26,13 @@ export const useRevenueCat = () => {
         proAccessPurchasedAt: firestore.FieldValue.serverTimestamp(),
         proAccessType: accessType,
       });
-      
+
       safeLogEvent('pro_access_stored_firestore', {
         userId,
         accessType,
         timestamp: new Date().toISOString(),
       });
-      
+
       console.log('Pro access stored to Firestore successfully');
     } catch (error) {
       console.error('Error storing pro access to Firestore:', error);
@@ -55,12 +56,12 @@ export const useRevenueCat = () => {
         proAccessPurchasedAt: null,
         proAccessType: null,
       });
-      
+
       safeLogEvent('no_pro_access_stored_firestore', {
         userId,
         timestamp: new Date().toISOString(),
       });
-      
+
       console.log('No pro access status stored to Firestore successfully');
     } catch (error) {
       console.error('Error storing no pro access to Firestore:', error);
@@ -75,11 +76,11 @@ export const useRevenueCat = () => {
     try {
       const customerInfo = await Purchases.getCustomerInfo();
       const hasProAccess = customerInfo.entitlements.active['pro_access'] !== undefined;
-      
+
       // Only update Redux and Firestore if the status has changed
       if (currentProAccessStatus !== hasProAccess) {
         dispatch(appActions.setProAccess(hasProAccess));
-        
+
         if (hasProAccess) {
           await storeProAccessToFirestore('restored');
           console.log('Pro access status changed - stored to Firestore:', hasProAccess);
@@ -87,18 +88,18 @@ export const useRevenueCat = () => {
           await storeNoProAccessToFirestore();
           console.log('Pro access status changed - stored to Firestore:', hasProAccess);
         }
-        
+
         safeLogEvent('pro_access_status_changed', {
           fromTo: `${currentProAccessStatus} -> ${hasProAccess}`,
           activeEntitlements: Object.keys(customerInfo.entitlements.active),
         });
       }
-      
+
       console.log('Pro access check completed:', hasProAccess);
     } catch (error) {
       console.log('[RevenueCat] Error checking Pro access:', error);
       dispatch(appActions.setProAccess(false));
-      
+
       safeLogEvent('pro_access_check_error', {
         error: error as any,
       });
@@ -106,11 +107,15 @@ export const useRevenueCat = () => {
   }, [dispatch, storeProAccessToFirestore, storeNoProAccessToFirestore, currentProAccessStatus]);
 
   const showPaywall = useCallback(async (options?: { type?: 'love' | 'general' }) => {
+    const allOfferings = await Purchases.getOfferings();
+    const loveOffer = allOfferings.all['love-offer-pro']; 
+    const friendsOffer = allOfferings.all['Friends offer pro']; 
+
     try {
       safeLogEvent('paywall_initiated', { type: options?.type || 'settings_popup' });
-      
-      const result = await RevenueCatUI.presentPaywallIfNeeded({
-        requiredEntitlementIdentifier: 'Pro access',
+
+      const result = await RevenueCatUI.presentPaywall({
+        offering: options?.type === 'love' ? loveOffer : friendsOffer,
       });
 
       switch (result) {
@@ -118,33 +123,50 @@ export const useRevenueCat = () => {
           safeLogEvent('paywall_purchased');
           dispatch(appActions.setProAccess(true));
           await storeProAccessToFirestore('purchased');
+
+          const customerInfo = await Purchases.getCustomerInfo();
+          const activeSubs = customerInfo.activeSubscriptions;
+          const planId = activeSubs[0] || 'unknown_plan';
+
+          const entitlements = customerInfo.entitlements.active;
+          const price = entitlements['pro_access']?.productIdentifier?.includes('monthly') ? 7.99 : 3.99;
+
+          // Facebook event
+          AppEventsLogger.logEvent('purchase', {
+            fb_currency: 'USD',
+            value: price,
+            plan_id: planId,
+            source: 'in_app'
+          });
+
+
           console.log('User purchased subscription!');
           return { success: true, action: 'purchased' };
-          
+
         case PAYWALL_RESULT.RESTORED:
           safeLogEvent('paywall_restored');
           dispatch(appActions.setProAccess(true));
           await storeProAccessToFirestore('restored');
           console.log('User restored subscription!');
           return { success: true, action: 'restored' };
-          
+
         case PAYWALL_RESULT.CANCELLED:
           safeLogEvent('paywall_cancelled');
           console.log('User cancelled paywall');
           return { success: false, action: 'cancelled' };
-          
+
         case PAYWALL_RESULT.ERROR:
           safeLogEvent('paywall_error');
           console.log('Paywall error occurred');
           return { success: false, action: 'error' };
-          
+
         case PAYWALL_RESULT.NOT_PRESENTED:
           safeLogEvent('paywall_not_presented');
           console.log('Paywall not presented (user already has access)');
           dispatch(appActions.setProAccess(true));
           await storeProAccessToFirestore('restored');
           return { success: true, action: 'already_subscribed' };
-          
+
         default:
           safeLogEvent('paywall_unknown_result');
           console.log('Unknown paywall result');
@@ -160,9 +182,9 @@ export const useRevenueCat = () => {
   const restorePurchases = useCallback(async () => {
     try {
       safeLogEvent('restore_purchases_initiated');
-      
+
       const result = await Purchases.restorePurchases();
-      
+
       if (result.entitlements.active['Pro access']) {
         safeLogEvent('restore_purchases_success');
         dispatch(appActions.setProAccess(true));

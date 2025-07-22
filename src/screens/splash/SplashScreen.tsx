@@ -15,6 +15,7 @@ import { setLanguage, fetchAppConfigThunk, initializeFromUserData, appActions } 
 import i18n from '../../localization';
 import { getDeviceLanguage } from '../../helpers/deviceLanguage';
 import { useRevenueCat } from '../../hooks/useRevenueCat';
+import { safeLogEvent } from '../../utils/analytics';
 
 type Props = StackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -52,6 +53,8 @@ export const SplashScreen = ({ navigation }: Props) => {
           languageToUse = userData.language;
           // languageToUse = 'tr';
         }
+
+        safeLogEvent('language_selected', { language: languageToUse });
         
         dispatch(setLanguage(languageToUse));
         i18n.changeLanguage(languageToUse);

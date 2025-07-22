@@ -430,5 +430,64 @@ export const mockData: Chat[] = [
       }
     },
     created_at: new Date()
+  },
+  {
+    id: '9',
+    type: 'love',
+    title: 'Elif & Can Tr',
+    participants: ['Elif', 'Can'],
+    analysis: {
+      chat_participants: ['Elif', 'Can'],
+      total_days_talked: 147,
+      most_conversation_starts: 'Elif',
+      average_response_time_seconds: {
+        Elif: 1120,
+        Can: 2840
+      },
+      average_words_per_message: {
+        Elif: 9,
+        Can: 4
+      },
+      top_3_topics: ['ilişki sorunları', 'gelecek planları', 'özlem'],
+      most_manipulative: 'Can',
+      lies_detected: {
+        Elif: 0,
+        Can: 2
+      },
+      dominant_person: 'Elif',
+      interest_level: {
+        Elif: 0.9,
+        Can: 0.4
+      },
+      mutual_desire_score: {
+        Elif: 0.75,
+        Can: 0.3
+      },
+      most_effort: 'Elif',
+      apology_count: {
+        Elif: 7,
+        Can: 1
+      },
+      i_love_you_count: {
+        Elif: 10,
+        Can: 2
+      },
+      first_love_sentence: "Seni düşündükçe içim acıyor",
+      most_used_love_words: [
+        { phrase: "seni seviyorum", count: 12 },
+        { phrase: "özledim", count: 8 },
+        { phrase: "hep yanındayım", count: 4 }
+      ],
+      most_romantic: "Elif",
+      laugh_together_count: 3,
+      funniest_message: ['Senin horlamanı bile özledim 😂', 'Evde yalnız kalınca bile tartışıyoruz 😅'],
+      favorite_love_emoji: [
+        { emoji: "💔", count: 9 },
+        { emoji: "🥺", count: 7 },
+        { emoji: "❤️", count: 6 }
+      ],
+      relationship_direction: 'Elif seviyor, Can uzaklaşıyor... ama hâlâ bir umut var mı?'
+    },
+    created_at: new Date()
   }
 ]; 
